@@ -39,8 +39,8 @@ module.exports = function (RED) {
             if (_.has(msg, 'payload.latchOutput')) {
                 useLatchOutput(Number(msg.payload.latchOutput));
             } else if (_.isString(msg.payload) && msg.payload.indexOf('latchOutput') >= 0) {
-                var newOutput = msg.payload.split(':')[1].trim();
-                useLatchOutput(Number(newOutput));
+                var match = /.*latchOutput.*(\d+)/.exec(msg.payload);
+                useLatchOutput(Number(match[1]));
             } else {
                 var msgs = new Array(config.outputs);
                 msgs[node.context().get('latchOutput') - 1] = msg;
