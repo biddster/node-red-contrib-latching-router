@@ -26,15 +26,41 @@
 var assert = require('assert');
 var nodeRedModule = require('../index.js');
 
-function loadNode(config, redModule) {
-    var _events = [], _status = undefined, _error = undefined, _messages = [];
+function Context(type) {
+    this._values = {};
+    this._type = type;
+}
+
+Context.prototype.get = function (key) {
+    return this._values[key];
+};
+
+Context.prototype.set = function (key, value) {
+    console.log(this._type + ' context: set [' + key + '] => [' + value + ']');
+    this._values[key] = value;
+};
+
+function mock(nodeRedModule, config) {
+    var _events = [], _status = undefined, _error = undefined, _messages = [], _context = new Context('node');
+    _context.flow = new Context('flow');
+    _context.global = new Context('global');
     var RED = {
         nodes: {
             registerType: function (nodeName, nodeConfigFunc) {
                 this.nodeConfigFunc = nodeConfigFunc;
             },
             createNode: function () {
+                // TODO write me
             }
+        }
+    };
+    var node = {
+        log: console.log,
+        warn: console.log,
+        error: function (error, msg) {
+            console.log(error);
+            if (error) _error = error;
+            return _error;
         },
         on: function (event, eventFunc) {
             _events[event] = eventFunc;
@@ -42,16 +68,9 @@ function loadNode(config, redModule) {
         emit: function (event, data) {
             _events[event](data);
         },
-        error: function (error) {
-            if (error) _error = error;
-            return _error;
-        },
         status: function (status) {
             if (status) _status = status;
             return _status;
-        },
-        log: function () {
-            console.log.apply(this, arguments);
         },
         send: function (msg) {
             assert(msg);
@@ -60,36 +79,39 @@ function loadNode(config, redModule) {
         messages: function (messages) {
             if (messages) _messages = messages;
             return _messages;
+        },
+        context: function () {
+            return _context;
         }
     };
-    redModule(RED);
-    RED.nodes.nodeConfigFunc.call(RED, config);
-    return RED;
+    nodeRedModule(RED);
+    RED.nodes.nodeConfigFunc.call(node, config);
+    return node;
 }
 
 describe('latching-router', function () {
 
     it('should work ', function () {
-        var node = loadNode({
+        var node = mock(nodeRedModule, {
             outputs: 3
-        }, nodeRedModule);
+        });
 
-        node.emit('input', {payload: {_latchOutput: 1}});
+        node.emit('input', {payload: {latchOutput: 1}});
         var msg0 = {payload: '0'};
         node.emit('input', msg0);
-        assert.strictEqual(1, node.messages().length);
-        assert.strictEqual(msg0, node.messages()[0][0]);
+        assert.strictEqual(node.messages().length, 1);
+        assert.strictEqual(node.messages()[0][0], msg0);
 
-        node.emit('input', {payload: {_latchOutput: 2}});
+        node.emit('input', {payload: 'latchOutput2'});
         var msg1 = {payload: '1'};
         node.emit('input', msg1);
-        assert.strictEqual(2, node.messages().length);
-        assert.strictEqual(msg1, node.messages()[1][1]);
+        assert.strictEqual(node.messages().length, 2);
+        assert.strictEqual(node.messages()[1][1], msg1);
 
         var msg2 = {payload: '1'};
         node.emit('input', msg2);
-        assert.strictEqual(3, node.messages().length);
-        assert.strictEqual(msg2, node.messages()[2][1]);
+        assert.strictEqual(node.messages().length, 3);
+        assert.strictEqual(node.messages()[2][1], msg2);
     });
 
 });
