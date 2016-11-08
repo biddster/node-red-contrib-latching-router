@@ -19,5 +19,8 @@
     "nodes": {
       "latching-router": "index.js"
     }
+  },
+  "devDependencies": {
+    "node-red-contrib-mock-node": "^0.1.0"
   }
 }
