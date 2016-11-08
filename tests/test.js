@@ -37,19 +37,19 @@ describe('latching-router', function () {
         node.emit('input', {payload: {latchOutput: 1}});
         var msg0 = {payload: '0'};
         node.emit('input', msg0);
-        assert.strictEqual(node.messages().length, 1);
-        assert.strictEqual(node.messages()[0][0], msg0);
+        assert.strictEqual(node.sent().length, 1);
+        assert.strictEqual(node.sent(0)[0], msg0);
 
         node.emit('input', {payload: 'latchOutput2'});
         var msg1 = {payload: '1'};
         node.emit('input', msg1);
-        assert.strictEqual(node.messages().length, 2);
-        assert.strictEqual(node.messages()[1][1], msg1);
+        assert.strictEqual(node.sent().length, 2);
+        assert.strictEqual(node.sent(1)[1], msg1);
 
         var msg2 = {payload: '1'};
         node.emit('input', msg2);
-        assert.strictEqual(node.messages().length, 3);
-        assert.strictEqual(node.messages()[2][1], msg2);
+        assert.strictEqual(node.sent().length, 3);
+        assert.strictEqual(node.sent(2)[1], msg2);
     });
 
 });
