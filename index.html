@@ -59,4 +59,17 @@ THE SOFTWARE.
 
 <script type="text/x-red" data-help-name="latching-router">
     <h1>Latching Router</h1>
+<p>
+A simple routing node that will latch the output and route all subsequent messages to that output.
+</p>
+<p>
+E.g. Drag the node into your workspace and configure it to have 3 outputs. Send a string payload of <code>latchOutput 3</code>
+to the node. This will cause the node to route all subsequent messages to output 3.
+</p>
+<p>
+Outputs are not zero indexed. So <code>latchOutput 1</code> will route subsequent messages to the 1st output.
+</p>
+<p>
+Messages which alter the latch are consumed and do not get sent via an output.
+</p>
 </script>
