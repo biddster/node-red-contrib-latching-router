@@ -2,7 +2,12 @@
   "name": "node-red-contrib-latching-router",
   "version": "0.3.0",
   "main": "index.js",
-  "keywords": [],
+  "keywords": [
+    "node-red",
+    "router",
+    "latch",
+    "gate"
+  ],
   "dependencies": {
     "lodash": "^4.16.6"
   },
