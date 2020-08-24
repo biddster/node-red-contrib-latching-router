@@ -23,51 +23,50 @@
  */
 
 module.exports = function (RED) {
-    'use strict';
-
-    var _ = require('lodash');
+    const _ = require('lodash');
 
     RED.nodes.registerType('latching-router', function (config) {
-
         RED.nodes.createNode(this, config);
-        var node = this;
-        if (!node.context().get('latchOutput')) {
-            node.context().set('latchOutput', 1);
-        }
+        // eslint-disable-next-line consistent-this
+        const node = this;
 
-        node.on('input', function (msg) {
-            if (_.has(msg, 'payload.latchOutput')) {
-                useLatchOutput(Number(msg.payload.latchOutput));
-            } else if (_.isString(msg.payload) && msg.payload.indexOf('latchOutput') >= 0) {
-                var match = /.*latchOutput.*(\d+)/.exec(msg.payload);
-                useLatchOutput(Number(match[1]));
-            } else {
-                var msgs = new Array(config.outputs);
-                msgs[node.context().get('latchOutput') - 1] = msg;
-                node.send(msgs);
-            }
-        });
+        const indicateLatchedOutput = function () {
+            node.status({
+                fill: 'green',
+                shape: 'dot',
+                text: 'Output => ' + node.context().get('latchOutput'),
+            });
+        };
 
-        function useLatchOutput(newOutput) {
+        const useLatchOutput = function (newOutput) {
             if (newOutput > config.outputs || newOutput < 1) {
                 node.status({
                     fill: 'red',
                     shape: 'dot',
-                    text: 'Invalid output ' + newOutput
+                    text: 'Invalid output ' + newOutput,
                 });
             } else {
                 node.context().set('latchOutput', newOutput);
                 indicateLatchedOutput();
             }
+        };
+
+        if (!node.context().get('latchOutput')) {
+            node.context().set('latchOutput', 1);
         }
 
-        function indicateLatchedOutput() {
-            node.status({
-                fill: 'green',
-                shape: 'dot',
-                text: 'Output => ' + node.context().get('latchOutput')
-            });
-        }
+        node.on('input', (msg) => {
+            if (_.has(msg, 'payload.latchOutput')) {
+                useLatchOutput(Number(msg.payload.latchOutput));
+            } else if (_.isString(msg.payload) && msg.payload.indexOf('latchOutput') >= 0) {
+                const match = /.*latchOutput.*(\d+)/.exec(msg.payload);
+                useLatchOutput(Number(match[1]));
+            } else {
+                const msgs = new Array(config.outputs);
+                msgs[node.context().get('latchOutput') - 1] = msg;
+                node.send(msgs);
+            }
+        });
 
         indicateLatchedOutput();
     });
