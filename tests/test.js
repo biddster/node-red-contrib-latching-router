@@ -1,3 +1,5 @@
+/* eslint-disable prefer-arrow-callback */
+/* eslint-disable no-undef */
 /**
  The MIT License (MIT)
 
@@ -22,34 +24,31 @@
  THE SOFTWARE.
  */
 
-"use strict";
-var assert = require('assert');
-var nodeRedModule = require('../index.js');
-var mock = require('node-red-contrib-mock-node');
+const Assert = require('assert');
+const NodeRedModule = require('../index.js');
+const Mock = require('node-red-contrib-mock-node');
 
 describe('latching-router', function () {
-
     it('should work ', function () {
-        var node = mock(nodeRedModule, {
-            outputs: 3
+        const node = Mock(NodeRedModule, {
+            outputs: 3,
         });
 
-        node.emit('input', {payload: {latchOutput: 1}});
-        var msg0 = {payload: '0'};
+        node.emit('input', { payload: { latchOutput: 1 } });
+        const msg0 = { payload: '0' };
         node.emit('input', msg0);
-        assert.strictEqual(node.sent().length, 1);
-        assert.strictEqual(node.sent(0)[0], msg0);
+        Assert.strictEqual(node.sent().length, 1);
+        Assert.strictEqual(node.sent(0)[0], msg0);
 
-        node.emit('input', {payload: 'latchOutput2'});
-        var msg1 = {payload: '1'};
+        node.emit('input', { payload: 'latchOutput2' });
+        const msg1 = { payload: '1' };
         node.emit('input', msg1);
-        assert.strictEqual(node.sent().length, 2);
-        assert.strictEqual(node.sent(1)[1], msg1);
+        Assert.strictEqual(node.sent().length, 2);
+        Assert.strictEqual(node.sent(1)[1], msg1);
 
-        var msg2 = {payload: '1'};
+        const msg2 = { payload: '1' };
         node.emit('input', msg2);
-        assert.strictEqual(node.sent().length, 3);
-        assert.strictEqual(node.sent(2)[1], msg2);
+        Assert.strictEqual(node.sent().length, 3);
+        Assert.strictEqual(node.sent(2)[1], msg2);
     });
-
 });
